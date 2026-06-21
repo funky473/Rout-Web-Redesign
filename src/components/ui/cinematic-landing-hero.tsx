@@ -191,7 +191,7 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
 
 export function CinematicHero({
   brandName = "Real-Time Tracking",
-  tagline1 = "Smart Public Transist System",
+  tagline1 = "Smart Public Transit System",
   tagline2 = "Built by Locals for Locals",
   cardHeading = "No More Uncertainty",
   cardDescription = <>Watch every bus move live on the map. Our GPS updates every 10 seconds so you always know exactly where your bus is — no guessing, no surprises.</>,
@@ -255,7 +255,7 @@ export function CinematicHero({
       gsap.set(".text-track", { autoAlpha: 0, y: isMobile ? 30 : 60, scale: isMobile ? 0.92 : 0.85, filter: isMobile ? "blur(0px)" : "blur(20px)", rotationX: isMobile ? 0 : -20 });
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
-      gsap.set([".card-left-text", ".card-right-text", ".card-left-text-2", ".card-right-text-2", ".card-left-text-3", ".card-right-text-3", ".mockup-scroll-wrapper", ".phone-widget", ".phone-screen-2", ".phone-screen-4"], { autoAlpha: 0 });
+      gsap.set([".card-intro", ".card-left-text", ".card-right-text", ".card-left-text-2", ".card-right-text-2", ".card-left-text-3", ".card-right-text-3", ".mockup-scroll-wrapper", ".phone-widget", ".phone-screen-2", ".phone-screen-4"], { autoAlpha: 0 });
       gsap.set(".cta-wrapper", { autoAlpha: 0, scale: isMobile ? 0.95 : 0.8, filter: isMobile ? "blur(0px)" : "blur(30px)" });
 
       const introTl = gsap.timeline({ delay: 0.3 });
@@ -263,7 +263,8 @@ export function CinematicHero({
         .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
         .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
 
-      const scrollEnd = isMobile ? "+=6500" : "+=11000";
+      const hold = isMobile ? 1.2 : 2.5;
+      const scrollEnd = isMobile ? "+=8000" : "+=13500";
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
@@ -277,33 +278,44 @@ export function CinematicHero({
       });
 
       scrollTl
+        // Card rises, hero fades back
         .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: isMobile ? 1.05 : 1.15, filter: isMobile ? "none" : "blur(20px)", opacity: 0.2, ease: "power2.inOut", duration: 2 }, 0)
         .to(".main-card", { y: 0, ease: "power3.inOut", duration: 2 }, 0)
         .to(".main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 1.5 })
+
+        // ── INTRO: What is Rout? ──────────────────────────────────────
+        .fromTo(".card-intro",
+          { autoAlpha: 0, y: isMobile ? 20 : 40, filter: isMobile ? "blur(0px)" : "blur(12px)" },
+          { autoAlpha: 1, y: 0, filter: "blur(0px)", ease: "expo.out", duration: isMobile ? 1.2 : 1.8 }
+        )
+        .to({}, { duration: hold })
+        .to(".card-intro", { autoAlpha: 0, y: -20, duration: 0.8, ease: "power2.in" })
+
+        // ── Feature 1: Real-Time Tracking ─────────────────────────────
         .fromTo(".mockup-scroll-wrapper",
           { y: isMobile ? 80 : 300, z: isMobile ? -80 : -500, rotationX: isMobile ? 12 : 50, rotationY: isMobile ? -6 : -30, autoAlpha: 0, scale: isMobile ? 0.88 : 0.6 },
-          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: isMobile ? 1.8 : 2.5 }, "-=0.8"
+          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: isMobile ? 1.8 : 2.5 }, "-=0.4"
         )
         .fromTo(".phone-widget", { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.15, ease: "back.out(1.2)", duration: 1.5 }, "-=1.5")
         .to(".progress-ring", { strokeDashoffset: 60, duration: 2, ease: "power3.inOut" }, "-=1.2")
         .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 2, ease: "expo.out" }, "-=2.0")
         .fromTo(".card-left-text", { x: -50, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 1.5 }, "-=1.5")
         .fromTo(".card-right-text", { x: 50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.5 }, "<")
-        .to({}, { duration: isMobile ? 1.2 : 2.5 })
+        .to({}, { duration: hold })
 
         // Feature 2: Smart ETA Engine — swap content
         .to([".card-left-text", ".card-right-text", ".phone-widget"], { autoAlpha: 0, y: -20, duration: 0.8, ease: "power2.in" })
         .to(".phone-screen-2", { autoAlpha: 1, duration: 0.6 }, "-=0.4")
         .fromTo(".card-left-text-2", { autoAlpha: 0, x: -40 }, { autoAlpha: 1, x: 0, duration: 1, ease: "power3.out" }, "-=0.2")
         .fromTo(".card-right-text-2", { autoAlpha: 0, x: 40, scale: 0.9 }, { autoAlpha: 1, x: 0, scale: 1, ease: "expo.out", duration: 1 }, "<")
-        .to({}, { duration: isMobile ? 1.2 : 2.5 })
+        .to({}, { duration: hold })
 
         // Feature 3: Automated Commute Alerts transition
         .to([".card-left-text-2", ".card-right-text-2", ".phone-screen-2"], { autoAlpha: 0, y: -20, duration: 0.8, ease: "power2.in" })
         .to(".phone-screen-4", { autoAlpha: 1, duration: 0.6 }, "-=0.4")
         .fromTo(".card-left-text-3", { autoAlpha: 0, x: -40 }, { autoAlpha: 1, x: 0, duration: 1, ease: "power3.out" }, "-=0.2")
         .fromTo(".card-right-text-3", { autoAlpha: 0, x: 40, scale: 0.9 }, { autoAlpha: 1, x: 0, scale: 1, ease: "expo.out", duration: 1 }, "<")
-        .to({}, { duration: isMobile ? 1.2 : 2.5 })
+        .to({}, { duration: hold })
 
         .set(".hero-text-wrapper", { autoAlpha: 0 })
         // 1. Feature content fades out
@@ -348,7 +360,7 @@ export function CinematicHero({
       <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform transform-style-3d">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/logo.png"
+          src="/logo.jpg"
           alt="Rout"
           className="text-track gsap-reveal w-64 h-64 md:w-96 md:h-96 lg:w-[420px] lg:h-[420px] object-contain mb-2"
           style={{ mixBlendMode: "multiply" }}
@@ -359,6 +371,9 @@ export function CinematicHero({
         <h1 className="text-days gsap-reveal text-silver-matte text-5xl md:text-7xl lg:text-[6rem] font-extrabold tracking-tighter">
           {tagline2}
         </h1>
+        <p className="text-track gsap-reveal text-[#0F3D33]/50 text-sm md:text-base font-medium mt-5 tracking-widest uppercase">
+          Real-time bus tracking &nbsp;·&nbsp; Grenada &amp; the Caribbean
+        </p>
       </div>
 
       {/* BACKGROUND LAYER 2: Tactile CTA Buttons */}
@@ -373,6 +388,28 @@ export function CinematicHero({
           className="main-card premium-depth-card relative overflow-hidden gsap-reveal flex items-center justify-center pointer-events-auto w-[92vw] md:w-[85vw] h-[92vh] md:h-[85vh] rounded-[32px] md:rounded-[40px]"
         >
           <div className="card-sheen" aria-hidden="true" />
+
+          {/* INTRO SLIDE: What is Rout? */}
+          <div className="card-intro gsap-reveal absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-8 md:px-20 pointer-events-none">
+            <span className="text-[#E7ECD8]/35 text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-6">
+              Built in Grenada &nbsp;·&nbsp; Expanding the Caribbean
+            </span>
+            <h2 className="text-[#E7ECD8] text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-none mb-6">
+              What is Rout?
+            </h2>
+            <p className="text-[#E7ECD8]/60 text-base md:text-xl max-w-2xl leading-relaxed mb-10">
+              A smart public transit app for commuters in the Caribbean.
+              See every bus on a live map, know exactly when it arrives, and get alerts
+              so you&apos;re never caught off guard again.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {["Live Bus Map", "Smart ETAs", "Commute Alerts"].map((label) => (
+                <span key={label} className="px-4 py-2 rounded-full border border-[#E7ECD8]/20 text-[#E7ECD8]/55 text-sm font-medium">
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
 
           {/* DYNAMIC RESPONSIVE GRID: Flex-col on mobile to force order, Grid on desktop */}
           <div className="relative w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-8 z-10 py-6 lg:py-0">
@@ -456,7 +493,7 @@ export function CinematicHero({
 
             <div className="card-right-text-3 gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end lg:z-[5] w-full">
               <h2 className="text-6xl md:text-[6rem] lg:text-[3.25rem] font-black uppercase tracking-tighter text-card-silver-matte lg:mt-0 lg:text-right">
-                Automated Commute Alerts
+                Commute Reminders
               </h2>
             </div>
 
@@ -464,7 +501,7 @@ export function CinematicHero({
 
             <div className="card-left-text-3 gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full lg:max-w-none px-4 lg:px-0">
               <h3 className="text-[#E7ECD8] text-2xl md:text-3xl lg:text-4xl font-bold mb-0 lg:mb-5 tracking-tight">
-                Automated Commute Alerts
+                No More Morning Panic
               </h3>
               <p className="hidden md:block text-[#E7ECD8]/70 text-sm md:text-base lg:text-lg font-normal leading-relaxed mx-auto lg:mx-0 max-w-sm lg:max-w-none">
                 Sync your work schedule and Rout handles the rest. Get a heads-up an hour before your shift starts, and a final alert the moment your bus is 10 minutes away.
@@ -486,7 +523,7 @@ export function CinematicHero({
 
             <div className="card-left-text-2 gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full lg:max-w-none px-4 lg:px-0">
               <h3 className="text-[#E7ECD8] text-2xl md:text-3xl lg:text-4xl font-bold mb-0 lg:mb-5 tracking-tight">
-                Smart ETA Engine
+                Know When to Step Out
               </h3>
               <p className="hidden md:block text-[#E7ECD8]/70 text-sm md:text-base lg:text-lg font-normal leading-relaxed mx-auto lg:mx-0 max-w-sm lg:max-w-none">
                 Advanced algorithms combine live GPS data, historical patterns, and traffic conditions to give you arrival times accurate to the minute.

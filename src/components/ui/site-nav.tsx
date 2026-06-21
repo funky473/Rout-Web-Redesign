@@ -105,7 +105,7 @@ export function SiteNav() {
             <div className="flex items-center gap-2.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo.png"
+                src="/logo.jpg"
                 alt="Rout"
                 className="h-8 w-8 object-contain"
                 style={{ mixBlendMode: activated ? "normal" : "multiply" }}

@@ -293,7 +293,7 @@ function WaitlistModal({ isOpen, preselectedRole, onClose }: { isOpen: boolean; 
                     <div className="flex justify-center mb-4">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="/logo.png"
+                        src="/logo.jpg"
                         alt="Rout"
                         className="h-12 w-12 object-contain"
                         style={{ mixBlendMode: "multiply" }}

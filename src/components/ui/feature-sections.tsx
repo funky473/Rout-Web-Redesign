@@ -134,7 +134,7 @@ export function CharterMarketplaceSection() {
             Charter<br />Marketplace
           </h2>
           <p className="text-[#E7ECD8]/60 text-lg leading-relaxed max-w-md">
-            Need wheels for your crew? Browse, compare, and book private bus charters directly through Rout — perfect for corporate teams, school trips, and special events.
+            Skip the hassle of coordinating group transport. Input your destination, passenger count, and time to instantly request a private bus for your next big lime or event.
           </p>
           <div className="mt-8">
             <JoinListButton className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#E7ECD8] text-[#0F3D33] text-sm font-bold hover:bg-[#E7ECD8]/90 transition-colors duration-200">
@@ -343,7 +343,7 @@ export function SiteFooter() {
           <div className="max-w-xs">
             <div className="flex items-center gap-3 mb-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Rout" loading="lazy" className="h-9 w-9 object-contain opacity-80" />
+              <img src="/logo.jpg" alt="Rout" loading="lazy" className="h-9 w-9 object-contain opacity-80" />
               <span className="font-extrabold text-lg text-[#E7ECD8] tracking-tight">Rout</span>
             </div>
             <p className="text-[#E7ECD8]/35 text-sm leading-relaxed mb-5">
