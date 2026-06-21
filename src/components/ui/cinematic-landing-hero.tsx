@@ -1,10 +1,12 @@
 // src/components/ui/cinematic-hero.tsx
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
+import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
+import { JoinListButton } from "@/components/ui/waitlist-modal";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -189,8 +191,8 @@ export function CinematicHero({
   cardDescription = <>Watch every bus move live on the map. Our GPS updates every 10 seconds so you always know exactly where your bus is — no guessing, no surprises.</>,
   metricValue = 365,
   metricLabel = "Days Sober",
-  ctaHeading = "Start your recovery.",
-  ctaDescription = "Join thousands of others in the 12-step program and take control of your timeline today.",
+  ctaHeading = "Beyond Bus Tracking",
+  ctaDescription = "Built to support the whole commuter experience, Rout is your all-in-one transit companion.",
   className,
   ...props
 }: CinematicHeroProps) {
@@ -199,6 +201,7 @@ export function CinematicHero({
   const mainCardRef = useRef<HTMLDivElement>(null);
   const mockupRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number>(0);
+  const [ctaVisible, setCtaVisible] = useState(false);
 
   // 1. High-Performance Mouse Interaction Logic (Using requestAnimationFrame)
   useEffect(() => {
@@ -256,7 +259,7 @@ export function CinematicHero({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=13000",
+          end: "+=14500",
           pin: true,
           scrub: 1,
           anticipatePin: 1,
@@ -294,21 +297,27 @@ export function CinematicHero({
         .to({}, { duration: 2.5 })
 
         .set(".hero-text-wrapper", { autoAlpha: 0 })
-        .set(".cta-wrapper", { autoAlpha: 1 })
-        .to({}, { duration: 1.5 })
+        // 1. Feature content fades out
         .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text-3", ".card-right-text-3"], {
-          scale: 0.9, y: -40, z: -200, autoAlpha: 0, ease: "power3.in", duration: 1.2, stagger: 0.05,
+          autoAlpha: 0, y: -30, duration: 0.8, ease: "power2.in",
         })
-        // Responsive card pullback sizing
+        // 2. Card shrinks
         .to(".main-card", {
           width: isMobile ? "92vw" : "85vw",
           height: isMobile ? "92vh" : "85vh",
           borderRadius: isMobile ? "32px" : "40px",
           ease: "expo.inOut",
-          duration: 1.8
-        }, "pullback")
-        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 1.8 }, "pullback")
-        .to(".main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.5 });
+          duration: 1.5,
+        })
+        // 3. Card exits upward — cream background revealed
+        .to(".main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.5 })
+        // 4. Brief blank cream screen
+        .to({}, { duration: 0.8 })
+        // 5. CTA fades in and unblurs
+        .set(".cta-wrapper", { autoAlpha: 1 })
+        .call(() => setCtaVisible(true))
+        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 1.8 })
+        .to({}, { duration: 2.0 });
 
     }, containerRef);
 
@@ -345,34 +354,7 @@ export function CinematicHero({
 
       {/* BACKGROUND LAYER 2: Tactile CTA Buttons */}
       <div className="cta-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 gsap-reveal pointer-events-auto will-change-transform">
-        <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight text-silver-matte">
-          {ctaHeading}
-        </h2>
-        <p className="text-muted-foreground text-lg md:text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed">
-          {ctaDescription}
-        </p>
-        <div className="flex flex-col sm:flex-row gap-6">
-          <a href="#" aria-label="Download on the App Store" className="btn-modern-light flex items-center justify-center gap-3 px-8 py-4 rounded-[1.25rem] group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            {/* Authentic Apple App Store Logo SVG */}
-            <svg className="w-8 h-8 transition-transform group-hover:scale-105" fill="currentColor" viewBox="0 0 384 512" aria-hidden="true">
-              <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-            </svg>
-            <div className="text-left">
-              <div className="text-[10px] font-bold tracking-wider text-neutral-500 uppercase mb-[-2px]">Download on the</div>
-              <div className="text-xl font-bold leading-none tracking-tight">App Store</div>
-            </div>
-          </a>
-          <a href="#" aria-label="Get it on Google Play" className="btn-modern-dark flex items-center justify-center gap-3 px-8 py-4 rounded-[1.25rem] group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-background">
-            {/* Authentic Google Play Store Solid Logo SVG */}
-            <svg className="w-7 h-7 transition-transform group-hover:scale-105" fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
-               <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/>
-            </svg>
-            <div className="text-left">
-              <div className="text-[10px] font-bold tracking-wider text-neutral-400 uppercase mb-[-2px]">Get it on</div>
-              <div className="text-xl font-bold leading-none tracking-tight">Google Play</div>
-            </div>
-          </a>
-        </div>
+        <HandWrittenTitle title={ctaHeading} subtitle={ctaDescription} isVisible={ctaVisible} />
       </div>
 
       {/* FOREGROUND LAYER: The Physical Deep Blue Card */}
