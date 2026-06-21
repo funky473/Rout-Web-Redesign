@@ -244,7 +244,7 @@ export function CinematicHero({
       gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.85, filter: "blur(20px)", rotationX: -20 });
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
-      gsap.set([".card-left-text", ".card-right-text", ".card-left-text-2", ".card-right-text-2", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget", ".phone-screen-2"], { autoAlpha: 0 });
+      gsap.set([".card-left-text", ".card-right-text", ".card-left-text-2", ".card-right-text-2", ".card-left-text-3", ".card-right-text-3", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget", ".phone-screen-2", ".phone-screen-4"], { autoAlpha: 0 });
       gsap.set(".cta-wrapper", { autoAlpha: 0, scale: 0.8, filter: "blur(30px)" });
 
       const introTl = gsap.timeline({ delay: 0.3 });
@@ -256,7 +256,7 @@ export function CinematicHero({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=10000",
+          end: "+=13000",
           pin: true,
           scrub: 1,
           anticipatePin: 1,
@@ -279,17 +279,24 @@ export function CinematicHero({
         .fromTo(".card-right-text", { x: 50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.5 }, "<")
         .to({}, { duration: 2.5 })
 
-        // Feature 2: Night Pulse — swap content
+        // Feature 2: Smart ETA Engine — swap content
         .to([".card-left-text", ".card-right-text", ".phone-widget"], { autoAlpha: 0, y: -20, duration: 0.8, ease: "power2.in" })
         .to(".phone-screen-2", { autoAlpha: 1, duration: 0.6 }, "-=0.4")
         .fromTo(".card-left-text-2", { autoAlpha: 0, x: -40 }, { autoAlpha: 1, x: 0, duration: 1, ease: "power3.out" }, "-=0.2")
         .fromTo(".card-right-text-2", { autoAlpha: 0, x: 40, scale: 0.9 }, { autoAlpha: 1, x: 0, scale: 1, ease: "expo.out", duration: 1 }, "<")
         .to({}, { duration: 2.5 })
 
+        // Feature 3: Automated Commute Alerts transition
+        .to([".card-left-text-2", ".card-right-text-2", ".phone-screen-2"], { autoAlpha: 0, y: -20, duration: 0.8, ease: "power2.in" })
+        .to(".phone-screen-4", { autoAlpha: 1, duration: 0.6 }, "-=0.4")
+        .fromTo(".card-left-text-3", { autoAlpha: 0, x: -40 }, { autoAlpha: 1, x: 0, duration: 1, ease: "power3.out" }, "-=0.2")
+        .fromTo(".card-right-text-3", { autoAlpha: 0, x: 40, scale: 0.9 }, { autoAlpha: 1, x: 0, scale: 1, ease: "expo.out", duration: 1 }, "<")
+        .to({}, { duration: 2.5 })
+
         .set(".hero-text-wrapper", { autoAlpha: 0 })
         .set(".cta-wrapper", { autoAlpha: 1 })
         .to({}, { duration: 1.5 })
-        .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text-2", ".card-right-text-2"], {
+        .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text-3", ".card-right-text-3"], {
           scale: 0.9, y: -40, z: -200, autoAlpha: 0, ease: "power3.in", duration: 1.2, stagger: 0.05,
         })
         // Responsive card pullback sizing
@@ -419,12 +426,19 @@ export function CinematicHero({
                       alt="Rout real-time bus tracking"
                       className="phone-widget absolute inset-0 w-full h-full object-cover object-top"
                     />
-                    {/* Feature 2: Night Pulse */}
+                    {/* Feature 2: Smart ETA Engine */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="/nightshift1.png"
-                      alt="Rout night shift bus tracking"
+                      src="/eta1.png"
+                      alt="Rout smart ETA engine"
                       className="phone-screen-2 absolute inset-0 w-full h-full object-cover object-top"
+                    />
+                    {/* Feature 3: Automated Commute Alerts */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/notification.png"
+                      alt="Rout automated commute alerts"
+                      className="phone-screen-4 absolute inset-0 w-full h-full object-cover object-top"
                     />
                   </div>
                 </div>
@@ -466,26 +480,45 @@ export function CinematicHero({
 
           </div>
 
-          {/* Feature 2: Night Pulse — absolute overlay matching the same grid */}
+          {/* Feature 3: Automated Commute Alerts — absolute overlay */}
           <div className="absolute inset-0 w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-8 py-6 lg:py-0 pointer-events-none">
 
-            {/* Right col: Night Pulse big text */}
-            <div className="card-right-text-2 gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end lg:z-[5] w-full">
+            <div className="card-right-text-3 gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end lg:z-[5] w-full">
               <h2 className="text-6xl md:text-[6rem] lg:text-[3.25rem] font-black uppercase tracking-tighter text-card-silver-matte lg:mt-0 lg:text-right">
-                Night Pulse
+                Automated Commute Alerts
               </h2>
             </div>
 
-            {/* Center col: empty placeholder so grid/flex spacing matches */}
-            <div className="order-2 lg:order-2" />
+            <div className="order-2 lg:order-2 h-[380px] lg:h-auto" />
 
-            {/* Left col: Night Pulse description */}
-            <div className="card-left-text-2 gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full lg:max-w-none px-4 lg:px-0">
+            <div className="card-left-text-3 gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full lg:max-w-none px-4 lg:px-0">
               <h3 className="text-[#E7ECD8] text-2xl md:text-3xl lg:text-4xl font-bold mb-0 lg:mb-5 tracking-tight">
-                Night Pulse
+                Automated Commute Alerts
               </h3>
               <p className="hidden md:block text-[#E7ECD8]/70 text-sm md:text-base lg:text-lg font-normal leading-relaxed mx-auto lg:mx-0 max-w-sm lg:max-w-none">
-                High-visibility tracking for late-night transit (9 PM – 12 AM). This provides crucial peace of mind, ensuring safety and reliability for late-shift workers and students traveling after dark.
+                Sync your work schedule and Rout handles the rest. Get a heads-up an hour before your shift starts, and a final alert the moment your bus is 10 minutes away.
+              </p>
+            </div>
+
+          </div>
+
+          {/* Feature 2: Smart ETA Engine — absolute overlay matching the same grid */}
+          <div className="absolute inset-0 w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-8 py-6 lg:py-0 pointer-events-none">
+
+            <div className="card-right-text-2 gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end lg:z-[5] w-full">
+              <h2 className="text-6xl md:text-[6rem] lg:text-[3.25rem] font-black uppercase tracking-tighter text-card-silver-matte lg:mt-0 lg:text-right">
+                Smart ETA Engine
+              </h2>
+            </div>
+
+            <div className="order-2 lg:order-2 h-[380px] lg:h-auto" />
+
+            <div className="card-left-text-2 gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full lg:max-w-none px-4 lg:px-0">
+              <h3 className="text-[#E7ECD8] text-2xl md:text-3xl lg:text-4xl font-bold mb-0 lg:mb-5 tracking-tight">
+                Smart ETA Engine
+              </h3>
+              <p className="hidden md:block text-[#E7ECD8]/70 text-sm md:text-base lg:text-lg font-normal leading-relaxed mx-auto lg:mx-0 max-w-sm lg:max-w-none">
+                Advanced algorithms combine live GPS data, historical patterns, and traffic conditions to give you arrival times accurate to the minute.
               </p>
             </div>
 
