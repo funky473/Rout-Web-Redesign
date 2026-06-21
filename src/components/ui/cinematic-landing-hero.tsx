@@ -182,11 +182,11 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
 }
 
 export function CinematicHero({
-  brandName = "Sobers",
+  brandName = "Real-Time Tracking",
   tagline1 = "Smart Public Transist System",
   tagline2 = "Built by Locals for Locals",
-  cardHeading = "Accountability, redefined.",
-  cardDescription = <><span className="text-[#E7ECD8] font-semibold">Sobers</span> empowers sponsors and sponsees in 12-step recovery programs with structured accountability, precise sobriety tracking, and beautiful visual timelines.</>,
+  cardHeading = "No More Uncertainty",
+  cardDescription = <>Watch every bus move live on the map. Our GPS updates every 10 seconds so you always know exactly where your bus is — no guessing, no surprises.</>,
   metricValue = 365,
   metricLabel = "Days Sober",
   ctaHeading = "Start your recovery.",
@@ -317,7 +317,7 @@ export function CinematicHero({
         <img
           src="/logo.png"
           alt="Rout"
-          className="text-track gsap-reveal w-28 h-28 md:w-36 md:h-36 object-contain mb-6"
+          className="text-track gsap-reveal w-64 h-64 md:w-96 md:h-96 lg:w-[420px] lg:h-[420px] object-contain mb-2"
           style={{ mixBlendMode: "multiply" }}
         />
         <h1 className="text-track gsap-reveal text-3d-matte text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight mb-2">
@@ -372,14 +372,14 @@ export function CinematicHero({
           <div className="relative w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-8 z-10 py-6 lg:py-0">
 
             {/* 1. TOP (Mobile) / Right (Desktop): BRAND NAME */}
-            <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 w-full">
-              <h2 className="text-6xl md:text-[6rem] lg:text-[8rem] font-black uppercase tracking-tighter text-card-silver-matte lg:mt-0">
+            <div className="card-right-text gsap-reveal order-1 lg:order-3 flex justify-center lg:justify-end z-20 lg:z-[5] w-full">
+              <h2 className="text-6xl md:text-[6rem] lg:text-[3.25rem] font-black uppercase tracking-tighter text-card-silver-matte lg:mt-0 lg:text-right">
                 {brandName}
               </h2>
             </div>
 
             {/* 2. MIDDLE (Mobile) / CENTER (Desktop): IPHONE MOCKUP */}
-            <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[380px] lg:h-[600px] flex items-center justify-center z-10" style={{ perspective: "1000px" }}>
+            <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[380px] lg:h-[600px] flex items-center justify-center z-10 lg:z-20" style={{ perspective: "1000px" }}>
 
               {/* Inner wrapper for safe CSS scaling that doesn't conflict with GSAP */}
               <div className="relative w-full h-full flex items-center justify-center transform scale-[0.65] md:scale-85 lg:scale-100">
@@ -404,54 +404,13 @@ export function CinematicHero({
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse" />
                     </div>
 
-                    {/* App Interface */}
-                    <div className="relative w-full h-full pt-12 px-5 pb-8 flex flex-col">
-                      <div className="phone-widget flex justify-between items-center mb-8">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold mb-1">Today</span>
-                          <span className="text-xl font-bold tracking-tight text-[#E7ECD8] drop-shadow-md">Journey</span>
-                        </div>
-                        <div className="w-9 h-9 rounded-full bg-white/5 text-neutral-200 flex items-center justify-center font-bold text-sm border border-white/10 shadow-lg shadow-black/50">JS</div>
-                      </div>
-
-                      <div className="phone-widget relative w-44 h-44 mx-auto flex items-center justify-center mb-8 drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">
-                        <svg className="absolute inset-0 w-full h-full" aria-hidden="true">
-                          <circle cx="88" cy="88" r="64" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="12" />
-                          <circle className="progress-ring" cx="88" cy="88" r="64" fill="none" stroke="#E7ECD8" strokeWidth="12" />
-                        </svg>
-                        <div className="text-center z-10 flex flex-col items-center">
-                          <span className="counter-val text-4xl font-extrabold tracking-tighter text-[#E7ECD8]">0</span>
-                          <span className="text-[8px] text-[#E7ECD8]/50 uppercase tracking-[0.1em] font-bold mt-0.5">{metricLabel}</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="phone-widget widget-depth rounded-2xl p-3 flex items-center">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E7ECD8]/20 to-[#E7ECD8]/5 flex items-center justify-center mr-3 border border-[#E7ECD8]/20 shadow-inner">
-                            <svg className="w-4 h-4 text-[#E7ECD8] drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <div className="flex-1">
-                            <div className="h-2 w-20 bg-neutral-300 rounded-full mb-2 shadow-inner" />
-                            <div className="h-1.5 w-12 bg-neutral-600 rounded-full shadow-inner" />
-                          </div>
-                        </div>
-                        <div className="phone-widget widget-depth rounded-2xl p-3 flex items-center">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 flex items-center justify-center mr-3 border border-emerald-400/20 shadow-inner">
-                            <svg className="w-4 h-4 text-emerald-400 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <div className="flex-1">
-                            <div className="h-2 w-16 bg-neutral-300 rounded-full mb-2 shadow-inner" />
-                            <div className="h-1.5 w-24 bg-neutral-600 rounded-full shadow-inner" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[120px] h-[4px] bg-white/20 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
-                    </div>
+                    {/* App Screenshot */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/eta.png"
+                      alt="Rout real-time bus tracking"
+                      className="phone-widget absolute inset-0 w-full h-full object-cover object-top"
+                    />
                   </div>
                 </div>
 
