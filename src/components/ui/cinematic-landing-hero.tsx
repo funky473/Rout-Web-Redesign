@@ -6,7 +6,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
-import { JoinListButton } from "@/components/ui/waitlist-modal";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -169,6 +168,13 @@ const INJECTED_STYLES = `
       stroke-dashoffset: 402;
       stroke-linecap: round;
   }
+
+  /* Performance: disable expensive effects on mobile / integrated graphics */
+  @media (max-width: 767px) {
+    .film-grain { display: none; }
+    .bg-grid-theme { display: none; }
+    .card-sheen { display: none; }
+  }
 `;
 
 export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -205,6 +211,8 @@ export function CinematicHero({
 
   // 1. High-Performance Mouse Interaction Logic (Using requestAnimationFrame)
   useEffect(() => {
+    if (window.innerWidth < 768) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       if (window.scrollY > window.innerHeight * 2) return;
 
@@ -244,22 +252,24 @@ export function CinematicHero({
     const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
-      gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.85, filter: "blur(20px)", rotationX: -20 });
+      gsap.set(".text-track", { autoAlpha: 0, y: isMobile ? 30 : 60, scale: isMobile ? 0.92 : 0.85, filter: isMobile ? "blur(0px)" : "blur(20px)", rotationX: isMobile ? 0 : -20 });
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
-      gsap.set([".card-left-text", ".card-right-text", ".card-left-text-2", ".card-right-text-2", ".card-left-text-3", ".card-right-text-3", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget", ".phone-screen-2", ".phone-screen-4"], { autoAlpha: 0 });
-      gsap.set(".cta-wrapper", { autoAlpha: 0, scale: 0.8, filter: "blur(30px)" });
+      gsap.set([".card-left-text", ".card-right-text", ".card-left-text-2", ".card-right-text-2", ".card-left-text-3", ".card-right-text-3", ".mockup-scroll-wrapper", ".phone-widget", ".phone-screen-2", ".phone-screen-4"], { autoAlpha: 0 });
+      gsap.set(".cta-wrapper", { autoAlpha: 0, scale: isMobile ? 0.95 : 0.8, filter: isMobile ? "blur(0px)" : "blur(30px)" });
 
       const introTl = gsap.timeline({ delay: 0.3 });
       introTl
         .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
         .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
 
+      const scrollEnd = isMobile ? "+=6500" : "+=11000";
+
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=14500",
+          end: scrollEnd,
           pin: true,
           scrub: 1,
           anticipatePin: 1,
@@ -267,38 +277,37 @@ export function CinematicHero({
       });
 
       scrollTl
-        .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: 1.15, filter: "blur(20px)", opacity: 0.2, ease: "power2.inOut", duration: 2 }, 0)
+        .to([".hero-text-wrapper", ".bg-grid-theme"], { scale: isMobile ? 1.05 : 1.15, filter: isMobile ? "none" : "blur(20px)", opacity: 0.2, ease: "power2.inOut", duration: 2 }, 0)
         .to(".main-card", { y: 0, ease: "power3.inOut", duration: 2 }, 0)
         .to(".main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 1.5 })
         .fromTo(".mockup-scroll-wrapper",
-          { y: 300, z: -500, rotationX: 50, rotationY: -30, autoAlpha: 0, scale: 0.6 },
-          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 2.5 }, "-=0.8"
+          { y: isMobile ? 80 : 300, z: isMobile ? -80 : -500, rotationX: isMobile ? 12 : 50, rotationY: isMobile ? -6 : -30, autoAlpha: 0, scale: isMobile ? 0.88 : 0.6 },
+          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: isMobile ? 1.8 : 2.5 }, "-=0.8"
         )
         .fromTo(".phone-widget", { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.15, ease: "back.out(1.2)", duration: 1.5 }, "-=1.5")
         .to(".progress-ring", { strokeDashoffset: 60, duration: 2, ease: "power3.inOut" }, "-=1.2")
         .to(".counter-val", { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 2, ease: "expo.out" }, "-=2.0")
-        .fromTo(".floating-badge", { y: 100, autoAlpha: 0, scale: 0.7, rotationZ: -10 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 1.5, stagger: 0.2 }, "-=2.0")
         .fromTo(".card-left-text", { x: -50, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 1.5 }, "-=1.5")
         .fromTo(".card-right-text", { x: 50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.5 }, "<")
-        .to({}, { duration: 2.5 })
+        .to({}, { duration: isMobile ? 1.2 : 2.5 })
 
         // Feature 2: Smart ETA Engine — swap content
         .to([".card-left-text", ".card-right-text", ".phone-widget"], { autoAlpha: 0, y: -20, duration: 0.8, ease: "power2.in" })
         .to(".phone-screen-2", { autoAlpha: 1, duration: 0.6 }, "-=0.4")
         .fromTo(".card-left-text-2", { autoAlpha: 0, x: -40 }, { autoAlpha: 1, x: 0, duration: 1, ease: "power3.out" }, "-=0.2")
         .fromTo(".card-right-text-2", { autoAlpha: 0, x: 40, scale: 0.9 }, { autoAlpha: 1, x: 0, scale: 1, ease: "expo.out", duration: 1 }, "<")
-        .to({}, { duration: 2.5 })
+        .to({}, { duration: isMobile ? 1.2 : 2.5 })
 
         // Feature 3: Automated Commute Alerts transition
         .to([".card-left-text-2", ".card-right-text-2", ".phone-screen-2"], { autoAlpha: 0, y: -20, duration: 0.8, ease: "power2.in" })
         .to(".phone-screen-4", { autoAlpha: 1, duration: 0.6 }, "-=0.4")
         .fromTo(".card-left-text-3", { autoAlpha: 0, x: -40 }, { autoAlpha: 1, x: 0, duration: 1, ease: "power3.out" }, "-=0.2")
         .fromTo(".card-right-text-3", { autoAlpha: 0, x: 40, scale: 0.9 }, { autoAlpha: 1, x: 0, scale: 1, ease: "expo.out", duration: 1 }, "<")
-        .to({}, { duration: 2.5 })
+        .to({}, { duration: isMobile ? 1.2 : 2.5 })
 
         .set(".hero-text-wrapper", { autoAlpha: 0 })
         // 1. Feature content fades out
-        .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text-3", ".card-right-text-3"], {
+        .to([".mockup-scroll-wrapper", ".card-left-text-3", ".card-right-text-3"], {
           autoAlpha: 0, y: -30, duration: 0.8, ease: "power2.in",
         })
         // 2. Card shrinks
@@ -310,14 +319,14 @@ export function CinematicHero({
           duration: 1.5,
         })
         // 3. Card exits upward — cream background revealed
-        .to(".main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.5 })
+        .to(".main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: isMobile ? 1.0 : 1.5 })
         // 4. Brief blank cream screen
-        .to({}, { duration: 0.8 })
+        .to({}, { duration: isMobile ? 0.4 : 0.8 })
         // 5. CTA fades in and unblurs
         .set(".cta-wrapper", { autoAlpha: 1 })
         .call(() => setCtaVisible(true))
-        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 1.8 })
-        .to({}, { duration: 2.0 });
+        .to(".cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: isMobile ? 1.0 : 1.8 })
+        .to({}, { duration: isMobile ? 1.0 : 2.0 });
 
     }, containerRef);
 
@@ -425,26 +434,6 @@ export function CinematicHero({
                   </div>
                 </div>
 
-                {/* Floating Glass Badges */}
-                <div className="floating-badge absolute flex top-6 lg:top-12 left-[-15px] lg:left-[-80px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
-                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-[#E7ECD8]/20 to-[#0F3D33]/10 flex items-center justify-center border border-[#E7ECD8]/30 shadow-inner">
-                    <span className="text-base lg:text-xl drop-shadow-lg" aria-hidden="true">🔥</span>
-                  </div>
-                  <div>
-                    <p className="text-[#E7ECD8] text-xs lg:text-sm font-bold tracking-tight">1 Year Streak</p>
-                    <p className="text-[#E7ECD8]/50 text-[10px] lg:text-xs font-medium">Milestone unlocked</p>
-                  </div>
-                </div>
-
-                <div className="floating-badge absolute flex bottom-12 lg:bottom-20 right-[-15px] lg:right-[-80px] floating-ui-badge rounded-xl lg:rounded-2xl p-3 lg:p-4 items-center gap-3 lg:gap-4 z-30">
-                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-b from-[#E7ECD8]/20 to-[#0F3D33]/10 flex items-center justify-center border border-[#E7ECD8]/30 shadow-inner">
-                    <span className="text-base lg:text-lg drop-shadow-lg" aria-hidden="true">🤝</span>
-                  </div>
-                  <div>
-                    <p className="text-[#E7ECD8] text-xs lg:text-sm font-bold tracking-tight">Sponsor Update</p>
-                    <p className="text-[#E7ECD8]/50 text-[10px] lg:text-xs font-medium">Shared successfully</p>
-                  </div>
-                </div>
 
               </div>
             </div>

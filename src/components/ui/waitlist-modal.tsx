@@ -4,13 +4,52 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { createContext, useContext } from "react";
+
+/* ── Types ──────────────────────────────────────────────────────── */
+
+type Role = "commuter" | "bus_operator" | "investor";
+type Stage = "idle" | "loading" | "success" | "error" | "duplicate";
+
+/* ── Role options ───────────────────────────────────────────────── */
+
+const ROLES: { value: Role; label: string; icon: React.ReactNode }[] = [
+  {
+    value: "commuter",
+    label: "Commuter",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="5" r="2" />
+        <path d="M12 7v6l-3 4M12 13l3 4M9 11H6M18 11h-3" />
+      </svg>
+    ),
+  },
+  {
+    value: "bus_operator",
+    label: "Bus Operator",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="13" rx="2" />
+        <path d="M3 10h18M8 18v2M16 18v2M7 14h.01M17 14h.01" />
+      </svg>
+    ),
+  },
+  {
+    value: "investor",
+    label: "Investor",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+        <polyline points="17 6 23 6 23 12" />
+      </svg>
+    ),
+  },
+];
 
 /* ── Context ────────────────────────────────────────────────────── */
 
-import { createContext, useContext } from "react";
-
 interface WaitlistContextValue {
-  open: () => void;
+  open: (initialRole?: Role) => void;
 }
 
 const WaitlistContext = createContext<WaitlistContextValue | null>(null);
@@ -25,24 +64,32 @@ export function useWaitlist() {
 
 export function WaitlistProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [preselectedRole, setPreselectedRole] = useState<Role | "">("");
 
-  // Close on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsOpen(false); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Lock body scroll while open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  const open = (initialRole?: Role) => {
+    if (initialRole) setPreselectedRole(initialRole);
+    setIsOpen(true);
+  };
+
   return (
-    <WaitlistContext.Provider value={{ open: () => setIsOpen(true) }}>
+    <WaitlistContext.Provider value={{ open }}>
       {children}
-      <WaitlistModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <WaitlistModal
+        isOpen={isOpen}
+        preselectedRole={preselectedRole}
+        onClose={() => { setIsOpen(false); setPreselectedRole(""); }}
+      />
     </WaitlistContext.Provider>
   );
 }
@@ -52,49 +99,57 @@ export function WaitlistProvider({ children }: { children: React.ReactNode }) {
 export function JoinListButton({
   className = "",
   children = "Join the List",
+  role,
+  onClick,
 }: {
   className?: string;
   children?: React.ReactNode;
+  role?: Role;
+  onClick?: () => void;
 }) {
   const { open } = useWaitlist();
   return (
-    <button type="button" onClick={open} className={className}>
+    <button
+      type="button"
+      onClick={() => { onClick?.(); open(role); }}
+      className={className}
+    >
       {children}
     </button>
   );
 }
 
+export type { Role };
+
 /* ── Modal ──────────────────────────────────────────────────────── */
 
-type Stage = "idle" | "loading" | "success" | "error" | "duplicate";
-
-function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function WaitlistModal({ isOpen, preselectedRole, onClose }: { isOpen: boolean; preselectedRole?: Role | ""; onClose: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState<Role | "">("");
   const [stage, setStage] = useState<Stage>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
 
-  // Reset form each open
   useEffect(() => {
     if (isOpen) {
       setName("");
       setEmail("");
+      setRole(preselectedRole ?? "");
       setStage("idle");
       setTimeout(() => nameRef.current?.focus(), 120);
     }
-  }, [isOpen]);
+  }, [isOpen, preselectedRole]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
+    if (!name.trim() || !email.trim() || !role) return;
 
     setStage("loading");
     setErrorMsg("");
 
     try {
-      // Prevent duplicate email submissions
-      const q = query(collection(db, "waitlist"), where("email", "==", email.toLowerCase().trim()));
+      const q = query(collection(db, "join_list"), where("email", "==", email.toLowerCase().trim()));
       const existing = await getDocs(q);
 
       if (!existing.empty) {
@@ -102,9 +157,10 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
         return;
       }
 
-      await addDoc(collection(db, "waitlist"), {
+      await addDoc(collection(db, "join_list"), {
         name: name.trim(),
         email: email.toLowerCase().trim(),
+        role,
         source: "web",
         createdAt: serverTimestamp(),
       });
@@ -116,6 +172,8 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
       setStage("error");
     }
   }
+
+  const roleLabel = ROLES.find((r) => r.value === role)?.label ?? "";
 
   return (
     <AnimatePresence>
@@ -170,7 +228,6 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     className="px-8 pb-10 pt-2 text-center flex flex-col items-center"
                   >
-                    {/* Success ring */}
                     <div className="w-16 h-16 rounded-full bg-[#0F3D33] flex items-center justify-center mb-6 shadow-lg shadow-[#0F3D33]/30">
                       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
                         <path d="M6 14L11.5 19.5L22 9" stroke="#E7ECD8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -180,7 +237,13 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                       You&apos;re on the list!
                     </h3>
                     <p className="text-[#0F3D33]/55 text-sm leading-relaxed max-w-xs">
-                      We&apos;ll reach out to <span className="font-semibold text-[#0F3D33]/80">{email}</span> the moment Rout is ready for you.
+                      We&apos;ll reach out to{" "}
+                      <span className="font-semibold text-[#0F3D33]/80">{email}</span>{" "}
+                      {roleLabel === "Investor"
+                        ? "with our investor brief when we're ready."
+                        : roleLabel === "Bus Operator"
+                        ? "when we're ready to onboard operators."
+                        : "the moment Rout is ready for you."}
                     </p>
                     <button
                       onClick={onClose}
@@ -227,7 +290,7 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     className="px-8 pb-8 pt-1"
                   >
                     {/* Rout logo */}
-                    <div className="flex justify-center mb-5">
+                    <div className="flex justify-center mb-4">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src="/logo.png"
@@ -237,14 +300,42 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                       />
                     </div>
 
-                    <h2 className="text-3xl font-black tracking-tighter text-[#0F3D33] text-center mb-1.5">
+                    <h2 className="text-3xl font-black tracking-tighter text-[#0F3D33] text-center mb-1">
                       Be first to ride
                     </h2>
-                    <p className="text-[#0F3D33]/50 text-sm text-center mb-7 leading-relaxed">
-                      Rout is launching soon. Join the waitlist and we&apos;ll notify you the moment it drops.
+                    <p className="text-[#0F3D33]/50 text-sm text-center mb-6 leading-relaxed">
+                      Rout is launching soon. Tell us who you are and we&apos;ll be in touch.
                     </p>
 
-                    <div className="space-y-3.5">
+                    {/* Role selector */}
+                    <div className="mb-5">
+                      <p className="text-xs font-bold text-[#0F3D33]/50 tracking-widest uppercase mb-2.5">
+                        I am joining as a…
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {ROLES.map(({ value, label, icon }) => {
+                          const selected = role === value;
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => setRole(value)}
+                              className={`flex flex-col items-center gap-1.5 py-3.5 px-2 rounded-2xl border text-center transition-all duration-200 ${
+                                selected
+                                  ? "bg-[#0F3D33] border-[#0F3D33] text-[#E7ECD8] shadow-md shadow-[#0F3D33]/20"
+                                  : "bg-[#0F3D33]/5 border-[#0F3D33]/12 text-[#0F3D33]/60 hover:bg-[#0F3D33]/10 hover:border-[#0F3D33]/25"
+                              }`}
+                            >
+                              {icon}
+                              <span className="text-[11px] font-bold tracking-tight leading-tight">{label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Name + Email */}
+                    <div className="space-y-3">
                       <div>
                         <label htmlFor="wl-name" className="block text-xs font-bold text-[#0F3D33]/50 tracking-widest uppercase mb-1.5">
                           Name
@@ -276,14 +367,17 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                       </div>
                     </div>
 
-                    {stage === "error" && (
+                    {!role && stage === "error" && (
+                      <p className="mt-3 text-red-600/70 text-xs text-center">Please select your role above.</p>
+                    )}
+                    {stage === "error" && errorMsg && (
                       <p className="mt-3 text-red-600/70 text-xs text-center">{errorMsg}</p>
                     )}
 
                     <button
                       type="submit"
-                      disabled={stage === "loading"}
-                      className="mt-5 w-full py-3.5 rounded-xl bg-[#0F3D33] text-[#E7ECD8] text-sm font-bold tracking-wide hover:bg-[#1A5444] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                      disabled={stage === "loading" || !role}
+                      className="mt-5 w-full py-3.5 rounded-xl bg-[#0F3D33] text-[#E7ECD8] text-sm font-bold tracking-wide hover:bg-[#1A5444] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       {stage === "loading" ? (
                         <>
@@ -298,7 +392,7 @@ function WaitlistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                       )}
                     </button>
 
-                    <p className="mt-4 text-center text-[#0F3D33]/30 text-[11px]">
+                    <p className="mt-3.5 text-center text-[#0F3D33]/30 text-[11px]">
                       No spam. Just a heads-up when we launch.
                     </p>
                   </motion.form>
