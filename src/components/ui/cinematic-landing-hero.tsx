@@ -183,8 +183,8 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
 
 export function CinematicHero({
   brandName = "Sobers",
-  tagline1 = "Track the journey,",
-  tagline2 = "not just the days.",
+  tagline1 = "Smart Public Transist System",
+  tagline2 = "Built by Locals for Locals",
   cardHeading = "Accountability, redefined.",
   cardDescription = <><span className="text-[#E7ECD8] font-semibold">Sobers</span> empowers sponsors and sponsees in 12-step recovery programs with structured accountability, precise sobriety tracking, and beautiful visual timelines.</>,
   metricValue = 365,
@@ -313,6 +313,13 @@ export function CinematicHero({
 
       {/* BACKGROUND LAYER: Hero Texts */}
       <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform transform-style-3d">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt="Rout"
+          className="text-track gsap-reveal w-28 h-28 md:w-36 md:h-36 object-contain mb-6"
+          style={{ mixBlendMode: "multiply" }}
+        />
         <h1 className="text-track gsap-reveal text-3d-matte text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight mb-2">
           {tagline1}
         </h1>
